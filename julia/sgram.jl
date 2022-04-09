@@ -32,3 +32,38 @@ end
 println("done")
 println("done")
 
+pg(x) = plot(Gray.(x))
+
+fn = "/opt/local/SX133_snippet.wav"
+s, fs = wavread(fn)
+plot(0:1/fs:(length(s))/fs-0.00001, s)
+a = 0.025
+b = 0.010
+struct SGO
+    s::Matrix{Float64}
+    t
+    f
+end
+function sg(s, windowlength::Float64, step::Float64)
+    a = windowlength
+    b = windowlength - step
+    fs = 16000
+    sp = spectrogram(s[:,1], convert(Int, a*fs), convert(Int, b*fs); window=hanning)
+    t = time(sp)
+    f = freq(sp)
+    ps = power(sp)
+    y = 20*log10.(ps)
+    y = y .- maximum(y)
+    y = map(y) do x
+        if x < -75
+            -75
+        else
+            x
+        end
+    end
+    y = abs.(y)
+    yy = y ./ maximum(y)
+    yyy = reverse(yy, dims=1)
+    r = collect(t)
+    SGO(yyy, t, f)
+end
