@@ -101,6 +101,85 @@ function readlabelfile(fn::String, docid::String)
     ), a)
 end
 
+function readlabelfilecv(fn::String, docid::String)
+    cvmap = Dict(
+        "h#" => "c",
+        "sh" => "c",
+        "ix" => "v",
+        "hv" => "c",
+        "eh" => "v",
+        "dcl" => "c",
+        "jh" => "c",
+        "ih" => "v",
+        "d" => "c",
+        "ah" => "v",
+        "kcl" => "c",
+        "k" => "c",
+        "s" => "c",
+        "ux" => "v",
+        "q" => "c",
+        "en" => "v",
+        "gcl" => "c",
+        "g" => "c",
+        "r" => "v",
+        "w" => "v",
+        "ao" => "v",
+        "epi" => "c",
+        "dx" => "c",
+        "axr" => "v",
+        "l" => "v",
+        "y" => "v",
+        "uh" => "v",
+        "n" => "v",
+        "ae" => "v",
+        "m" => "v",
+        "oy" => "v",
+        "ax" => "v",
+        "dh" => "c",
+        "tcl" => "c",
+        "iy" => "v",
+        "v" => "c",
+        "f" => "c",
+        "t" => "c",
+        "pcl" => "c",
+        "ow" => "v",
+        "hh" => "c",
+        "ch" => "c",
+        "bcl" => "c",
+        "b" => "c",
+        "aa" => "v",
+        "em" => "v",
+        "ng" => "v",
+        "ay" => "v",
+        "th" => "c",
+        "ax-h" => "v",
+        "ey" => "v",
+        "p" => "c",
+        "aw" => "v",
+        "er" => "v",
+        "nx" => "v",
+        "z" => "c",
+        "el" => "v",
+        "uw" => "v",
+        "pau" => "v",
+        "zh" => "c",
+        "eng" => "v"
+        )
+    a = readlines(fn)
+    a = map( x -> split(x, " ", limit=3), a )
+    a = map( x -> Ann(
+        Source(
+            docid,
+            parse(Int, x[1]):parse(Int, x[2])
+        ),
+        (if haskey(cvmap, x[3])
+            cvmap[x[3]]
+        else
+            x[3]
+        end)
+    ), a)
+end
+
 function readtimit(base::String)
     a = Utt[]
     for (root, dns, fns) in walkdir(base)
@@ -116,7 +195,7 @@ function readtimit(base::String)
                     rfn,
                     readlabelfile(replace(rfn, r"wav$" => "txt"), rfn),
                     readlabelfile(replace(rfn, r"wav$" => "wrd"), rfn),
-                    readlabelfile(replace(rfn, r"wav$" => "phn"), rfn)
+                    readlabelfilecv(replace(rfn, r"wav$" => "phn"), rfn)
                 ))
             end
         end
@@ -152,3 +231,4 @@ function tryf(cache, utt)
     # collect(Iterators.product( collect(sgo.t), sources ))
     [ (last(x), y.label) for x in zip(sgo.t, eachcol(sgo.s)), y in sources if first(first(x)) >= first(y.source.range) && last(first(x)) <= last(y.source.range) ]
 end
+
