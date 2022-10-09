@@ -55,15 +55,16 @@ function sg(s, windowlength::Float64, step::Float64)
     y = 20*log10.(ps)
     y = y .- maximum(y)
     y = map(y) do x
-        if x < -75
-            -75
+        if x < -100
+            -100
         else
             x
         end
     end
     y = abs.(y)
     yy = y ./ maximum(y)
-    yyy = reverse(yy, dims=1)
-    r = collect(t)
+    # yyy = reverse(yy, dims=1)
+    yyy = 1 .- yy 
+    # r = collect(t)
     SGO(yyy, t, f)
 end
