@@ -1,3 +1,10 @@
+abstract type Corpus end
+abstract type SpeechCorpus <: Corpus end
+struct Timit <: SpeechCorpus
+    root::String
+end
+
+
 using ZipFile
 function readt()
     r = ZipFile.Reader("/opt/local/corpora/timit_labels.zip");
@@ -180,13 +187,13 @@ function readlabelfilecv(fn::String, docid::String)
     ), a)
 end
 
-function readtimit(base::String)
+function readtimit(timit::Timit)
     a = Utt[]
-    for (root, dns, fns) in walkdir(base)
+    for (root, dns, fns) in walkdir(timit.root)
         for fn in fns
             rfn = joinpath(root, fn)
             m = match(r"(\w+)/(\w+)/(\w+)/(\w+)\.wav$", rfn)
-            if m != nothing
+            if m !== nothing
                 push!(a, Utt(
                     m.captures[1],
                     m.captures[2],
@@ -206,7 +213,7 @@ end
 function allphn(all::Vector{Utt})
     reduce(vcat, map( x -> x.phn, all ))
 end
-function selectphn(all::Vector{Utt}, phn::String)
+function select_phones(all::Vector{Utt}, phn::String)
     allphn(all) |> x -> filter( x -> x.label == phn, x )
 end
 function mapsource(f::Function, sources::Vector{Source})
